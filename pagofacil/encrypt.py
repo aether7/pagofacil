@@ -18,9 +18,19 @@ class PagoPayload:
 
 
 def generate_encrypt(payload: PagoPayload, secret: str) -> str:
-    signature_str = ''
+    signature_str = _serialize_payload(payload)
 
-    pago_payload = {
+    signature = hmac.new(
+        codecs.encode(secret),
+        msg=codecs.encode(signature_str),
+        digestmod=hashlib.sha256
+    )
+
+    return signature.hexdigest()
+
+
+def _serialize_payload(payload: PagoPayload):
+    transaction_payload = {
         'x_account_id': payload.account_id,
         'x_amount': payload.amount,
         'x_currency': payload.currency,
@@ -32,14 +42,9 @@ def generate_encrypt(payload: PagoPayload, secret: str) -> str:
         'x_url_complete': payload.url_complete,
         'x_url_callback': payload.url_callback
     }
+    message = ''
 
-    for key in sorted(pago_payload.keys()):
-        signature_str += '{}{}'.format(key, pago_payload[key])
+    for key in sorted(transaction_payload.keys()):
+        message += '{}{}'.format(key, transaction_payload[key])
 
-    signature = hmac.new(
-        codecs.encode(secret),
-        msg=codecs.encode(signature_str),
-        digestmod=hashlib.sha256
-    )
-
-    return signature.hexdigest()
+    return message
