@@ -1,11 +1,20 @@
-from setuptools import find_packages, setup
+import sys
+from setuptools import setup
 
-setup(
-    name='pagofacil',
-    packages=find_packages(include=['pagofacil']),
-    version='0.1.0',
-    description='Payload encrypter for pago facil CL',
-    author='Me',
-    license='MIT',
-    test_suite='tests'
-)
+CURRENT_PYTHON_VERSION = sys.version_info[:2]
+MINIMUM_PYTHON_VERSION = (3, 7)
+
+if CURRENT_PYTHON_VERSION < MINIMUM_PYTHON_VERSION:
+    sys.stderr.write("""
+=====================================
+Your python version is not supported
+=====================================
+
+this version of pago facil requires python {}.{}, however your
+current version of python is {}.{}
+
+This is because in this library we are using dataclasses lib.
+""".format(*(MINIMUM_PYTHON_VERSION + CURRENT_PYTHON_VERSION)))
+    sys.exit(1)
+
+setup()
